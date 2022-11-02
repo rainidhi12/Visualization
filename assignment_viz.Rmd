@@ -1,0 +1,184 @@
+---
+title: "A/B Test"
+author: "Nidhi"
+output:
+  pdf_document: default
+  html_document: default
+abstract: This is a glance at A/B testing by visualization alone. I have plotted graphs of various parameters and speculated on the final inference. These claims can be confirmed or denied by conducting a hypothesis test.
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# **Introduction**
+
+In modern data analytics, deciding whether two numerical samples come from the same underlying distribution is called *A/B testing*. The name refers to the labels of the two samples, A and B.
+
+A/B testing, also known as split testing, refers to a randomized experimentation process wherein two or more versions of a variable (web page, page element, etc.) are shown to different segments of website visitors at the same time to determine which version leaves the maximum impact and drives business metrics. Essentially, A/B testing eliminates all the guesswork out of website optimization and enables experience optimizers to make data-backed decisions. In A/B testing, A refers to 'control' or the original testing variable. Whereas B refers to 'variation' or a new version of the original testing variable.
+
+A/B testing is one of the components of the overarching process of Conversion Rate Optimization (CRO), using which we can gather both qualitative and quantitative user insights. We can further use this collected data to understand user behavior, engagement rate, pain points, and even satisfaction with website features, including new features, revamped page sections, etc.
+
+# **Dataset Description**
+
+A company recently introduced a new bidding type, "average bidding", as an alternative to its exisiting bidding type, called "maximum bidding". One of our clients, ....com, has decided to test this new feature and wants to conduct an A/B test to understand if average bidding brings more conversions than maximum bidding.
+
+The A/B test has run for 1 month and ....com now expects you to analyze and present the results of this A/B test.
+
+## Details about columns in Dataset:
+
+-   CampaignName : Name of the type of data(control or test)
+
+-   Date : Date
+
+-   SpendUSD : Money spent on each day
+
+-   Impressions : It is a variable for the user to see an ad.
+
+-   Reach : The number of unique people who saw an ad.
+
+-   WebsiteClicks : It is the variable related to the user clicking the website link in the advertisement.
+
+-   Searches : It is the variable related to the user performing a search on the website.
+
+-   ViewContent : It is the variable related to the user viewing the details of a product.
+
+-   AddToCart : It is the variable related to the user adding the product to the cart.
+
+-   Purchases : It is the variable related to the user's purchase of the product.
+
+## Importing Dataset
+
+```{r}
+control = read.csv("control_group.csv", sep = ";")
+test =  read.csv("test_group.csv", sep = ";")
+head(test)
+```
+
+```{r}
+head(control)
+```
+
+# **Visualizing the data in R**
+
+## Setting things up by including required packages
+
+```{r, results='hide', message=FALSE}
+library(tidyverse)
+library(dplyr)
+library(scales)
+```
+
+## Cleaning Dataset by changing names of columns.
+
+```{r}
+names(control) = c("CampaignName", "Date", "SpendUSD", "Impressions", "Reach",
+"WebsiteClicks", "Searches", "ViewContent", "AddToCart", "Purchases")
+
+names(test) = c("CampaignName", "Date", "SpendUSD", "Impressions", "Reach", 
+"WebsiteClicks", "Searches", "ViewContent", "AddToCart", "Purchases")
+```
+
+```{r, fig.dim=c(6,4), fig.show='hold'}
+
+print(ggplot() + 
+   geom_smooth(test, mapping = aes(x =factor(Date, levels = unique(Date)), 
+   y =SpendUSD, group=1, colour = "test"), se=F) + theme_bw() +
+   geom_smooth(control, mapping = aes(x =factor(Date, levels = unique(Date)), 
+   y =SpendUSD , group=1, color = "control"), se=F) + theme_bw() +
+   scale_x_discrete(guide = guide_axis(check.overlap = TRUE))+
+   labs(x = "Date", y = "Spend", title ="Spend(in USD)"))
+
+
+ print(ggplot() + 
+   geom_smooth(test, mapping = aes(x = Reach, y =WebsiteClicks, group=1, 
+   colour = "test"), se=F)+theme_bw()+
+   geom_smooth(control, mapping = aes(x = Reach, y =WebsiteClicks, group=1,
+   color="control"), se=F)+theme_bw()+labs(x= "Reach", y = "Website Clicks", 
+   title = "No.of unique people who saw an ad vs. Website clicks"))
+ 
+print(ggplot() + 
+   geom_smooth(test, mapping = aes(x =WebsiteClicks, y =Searches, group=1, 
+   colour = "test"), se=F) + theme_bw() +
+   geom_smooth(control, mapping = aes(x =WebsiteClicks, y=Searches, group=1, 
+   color = "control"), se=F) + theme_bw()+labs(x="Website Clicks", y="Search", 
+   title = "No.of website clicks vs. User performing a search on the website"))
+
+print(ggplot() + 
+    geom_smooth(test, mapping = aes(x =Searches, y =ViewContent, group=1, 
+    colour = "test"), se=F) + theme_bw() +
+    geom_smooth(control, mapping = aes(x =Searches, y =ViewContent, group=1,
+    color="control"),se=F) + theme_bw()+labs(x="Search", y="Content View",
+    title = "No. of user performing a search on the website vs.
+    User viewing the details of a product"))
+  
+print(ggplot() + 
+    geom_smooth(test, mapping = aes(x =AddToCart, y =Purchases, group=1, 
+    colour = "test"), se=F) + theme_bw() +
+    geom_smooth(control, mapping = aes(x =AddToCart, y =Purchases, group=1,
+    color = "control"), se=F) + theme_bw()+labs(x="Add to cart", y="Purchase",
+    title="User adding the product to the cart vs.User's purchase of the \nproduct"))
+  
+print(ggplot() + 
+    geom_smooth(test, mapping = aes(x =factor(Date, levels = unique(Date)), 
+    y =AddToCart, group=1, colour = "test"), se=F) + theme_bw() +
+    geom_smooth(control, mapping = aes(x =factor(Date, levels = unique(Date)),
+    y =AddToCart, group=1, color="control"), se=F) + theme_bw()+ 
+    scale_x_discrete(guide = guide_axis(check.overlap = TRUE))+labs(x="Date",
+    y="Add to cart", title = "No. of products added to the cart on each day"))
+  
+  
+  
+test <- test %>%
+  mutate(CRT = Purchases * 100/AddToCart,
+       IMRT = WebsiteClicks*100/Impressions
+       )
+
+control <- control %>%
+  mutate(CRT = Purchases * 100/AddToCart,
+       IMRT = WebsiteClicks*100/Impressions
+)
+
+print(ggplot()+
+  geom_smooth(test, mapping = aes(x=factor(Date, levels = unique(Date)), 
+  y = CRT, group = 1, colour = "test"), se = F ) + theme_bw()+
+  geom_smooth(control, mapping = aes(x=factor(Date, levels = unique(Date)), 
+  y = CRT, group = 1, color="control"), se = F ) +theme_bw()+
+  scale_x_discrete(guide = guide_axis(check.overlap = TRUE))+labs(x="Date", 
+  y="Conversion Rate(%)", title = "Conversion Rate(%) for each day"))
+  
+
+print(ggplot()+
+  geom_smooth(test, mapping = aes(x=factor(Date, levels = unique(Date)), 
+  y = IMRT, group = 1, colour = "test"),se=F ) + theme_bw()+
+  geom_smooth(control, mapping = aes(x=factor(Date, levels = unique(Date)),
+  y = IMRT, group = 1, color = "control"), se = F ) +theme_bw()+
+  scale_x_discrete(guide = guide_axis(check.overlap = TRUE))+labs(x="Date",
+  y="Impression Rate(%)", title = "Impression Rate(%) for each day"))
+
+
+```
+
+\pagebreak
+
+##  **Summary of Analysis**
+
+- The daily spend on test data is higher than the daily spend on control data.
+
+- There is variation in spend pattern for test and control data, however both test and control experience a dip in spend at the middle of the month. 
+
+- There is a clear increase in trend in control over the month as website clicks increase, so did unique searches. For the test data however, there is significantly less variation across the month.
+
+- Even though it might look like test has steady increase in purchase vs. add to cart, more people are adding to cart in control than in test.   
+
+
+
+# **Conclusion**
+
+ Initially, there is no significant difference in conversion rate for both test 
+data and control data but for last eight days of the month, there is a 
+significant increase in conversion rate of control data.
+
+ 
+
