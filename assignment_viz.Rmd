@@ -14,6 +14,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # **Introduction**
 
+The Dashboard for this project can be found [here](https://rainidhi.shinyapps.io/VisuProject/),the youtube link for dashboard can be found [here](https://youtu.be/c-ZVGqCjYBc).
+
 In modern data analytics, deciding whether two numerical samples come from the same underlying distribution is called *A/B testing*. The name refers to the labels of the two samples, A and B.
 
 A/B testing, also known as split testing, refers to a randomized experimentation process wherein two or more versions of a variable (web page, page element, etc.) are shown to different segments of website visitors at the same time to determine which version leaves the maximum impact and drives business metrics. Essentially, A/B testing eliminates all the guesswork out of website optimization and enables experience optimizers to make data-backed decisions. In A/B testing, A refers to 'control' or the original testing variable. Whereas B refers to 'variation' or a new version of the original testing variable.
